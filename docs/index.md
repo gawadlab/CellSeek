@@ -10,7 +10,7 @@ Single Cell Explorer is a web application that allows interactive exploration fr
 
 ### Scattergrid plot
 
-![useful image]({{ site.url }}/assets/scatterhex_plot.png)
+![](assets/scatterhex_plot.png)
 
 The scattergrid plot is the primary means to explore the dataset and is always visible. The scattergrid is a grid of fixed-size hexagons that occupies the plot area. A hexagon is rendered if it overlays at least one cell in the underlying scatterplot. Since the maximum number of hexagons is fixed, data can be quickly rendered and is limited primarily by network transfer speeds. Additionally, the scattergrid format allows interaction with the scattergrid plot itself, which leads to better interaction with the data.
 
