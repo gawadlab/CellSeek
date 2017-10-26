@@ -25,11 +25,11 @@ The explore tab allows interactive exploration of the dataset by mapping various
 
 Zooming and panning is enabled when the Explore tab is selected. Zooming allows more granular exploration of cells of interest, since zooming in will reduce the number of cells that are being summarized in each hexbin.
 
-![useful image]({{ site.url }}/assets/explore_gene_tab.png)
+![](/assets/explore_gene_tab.png)
 
 Gene expression can be explored by selecting the Genes tab. The gene expression of a hexgrid is summarized as the mean expression of all component cells. The gene expression legend is adjustable by scrolling the mouse wheel over the numeric scale to the right of the scatterhex grid legend.
 
-![useful image]({{ site.url }}/assets/explore_subgroups_tab.png)
+![](/assets/explore_subgroups_tab.png)
 
 The Subgroups tab allows exploration of cell-level data. Currently, Subgroups include sample date, cluster ID, and cell type. Sample date is the sampling date of the cell and will indicate the emryonic or post-natal day of the sampled cells. Cluster ID denotes the assigned cluster of each cell. The cell type of each cell is determined by the expression of marker genes. For more information on how these were determined, please see the manuscript. Hexgrids are currently summarized by the most frequent feature of the component cells.
 
