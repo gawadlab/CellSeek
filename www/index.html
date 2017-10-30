@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <!--Next 3 lines added for shiny-->
+    <script src="external_js/jquery-2.2.4.min.js"></script>
+    <script src="external_js/shiny.min.js" type="text/javascript"></script>
+    <script src="external_js/htmlwidgets.js" type="text/javascript"></script>
+    <script src="external_js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="external_js/datatables.js" type="text/javascript"></script>
+    <script src="external_js/hammer.min.js" type="text/javascript"></script>
+    <!-- D3-related scripts -->
+    <script src="external_js/d3-lasso.min.js" type="text/javascript"></script>
+    <script src='external_js/d3.min.js'></script>
+    <script src='external_js/d3-hexbin.v0.2.min.js'></script>
+    <script src='external_js/d3-scale-chromatic.v1.min.js'></script>
+    <script src='external_js/d3-random.v1.min.js'></script>
+
+
+    <link rel="stylesheet" type="text/css" href="css/scroller.dataTables.min.css"/> 
+    <link rel="stylesheet" type="text/css" href="shared/shiny.css"/> 
+    <link rel="stylesheet" type="text/css" href="shared/datatables/css/dataTables.extra.css"/>
+    <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
+    <!--Bootstrap 3.3.7-->
+    <link rel="stylesheet" href="css/bootstrap.css" media="screen">
+    <link rel="stylesheet" href="css/custom.css" media="screen">
+    <link rel="stylesheet" href="css/dt.css" media="screen">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css">
+    	
+    <meta charset="utf-8">
+    <title>Cell Seek</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  </head>
+  <body>
+    <div class="navbar navbar-default navbar-fixed-top" >
+      <div class="container" style='display:block;'>
+        <div class="navbar-header">
+          <a class="navbar-brand">Cell Seek</a>
+          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-main">
+          <ul class="nav navbar-nav">
+            <li>
+              <a>Developing Murine Cerebellum</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container main_container">
+      <div id='optional_div_attachment_parent' class="bs-docs-section">
+        <div id="scatter_row" class="row">
+          <div id="tab_and_tables_div" class="col-lg-4">
+            <ul id='upper_tabs' class="nav nav-tabs" data-tabs="tabs">
+              <li id='explore_tab' class="active"><a id="explore_tab" href="#explore" data-toggle="tab">Explore</a></li>
+              <li id='group_tab' class=''><a id="group_tab" href="#group" data-toggle="tab">Groups</a></li>
+            </ul>
+            <div id="upper_tab_content" class="tab-content">
+              <div id="explore" class="tab-pane fade active in">
+                <ul id="explore_tabs " class="nav nav-tabs" data-tabs="tabs">
+                  <li id='gene_tab' class="active"><a href="#gene" data-toggle="tab">Genes</a></li>
+                  <li id='subgroup_tab' class=''><a href="#subgroup" data-toggle="tab">Subgroups</a></li>
+                </ul>
+                <div id="explore_tab_content" class="tab-content">
+                  <div id="gene" class="tab-pane fade active in">
+                    <div id="gene_table" style="width:100%; height:auto" class="datatables html-widget html-widget-output"></div>
+                  </div>
+                  <div id="subgroup" class="tab-pane fade">
+                    <div id="subgroup_table" style="width:100%; height:auto" class="datatables html-widget html-widget-output"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="group" class="tab-pane fade">
+                <ul id='group_tabs' class="nav nav-tabs" data-tabs="tabs">
+                  <li id='new_group_tab' class="active"><a href="#new_group" data-toggle="tab">User Selected Subgroup</a></li>
+                  <li id='saved_group_tab' class='disabled'><a href="#saved_groups" data-toggle="">Saved</a></li>
+                </ul>
+                <div id="group_tab_content" class="tab-content">
+                  <div id="new_group" class="tab-pane fade active in">
+                    <form onchange="validate_new_group_form()" class="form-horizontal">
+                      <fieldset>
+                        <legend>New Group</legend>
+                        <div class="form-group">
+                          <label for="num_selected_cells" class="col-lg-2 control-label">num cells</label>
+                          <div class="col-lg-10">
+                            <input disabled='' class="form-control" id="num_selected" value="0" type="text">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="Selection Name" class="col-lg-2 control-label">Current Selection</label>
+                          <div class="col-lg-10">
+                            <input class="form-control" id="selection_name" value="Current Selection" type="text">
+                          </div>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="col-lg-2 control-label">Analysis</label>
+                          <div class="col-lg-10">
+                            <div class="checkbox">
+                              <label>
+                                <input id="monocle_check" name="analysis_check" type="checkbox" value="monocle_check"> Pseudotime Analysis
+                              </label>
+                              <br/>
+                              <label>
+                                <input id="correlation_check" name="analysis_check" type="checkbox" value="correlation_check"> TF Correlation Network
+                              </label>
+                            </div>      
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <div class="col-lg-10 col-lg-offset-2">
+                            <button onclick="submit_new_group()" id="submit_new_group_button" class="btn btn-primary">Submit</button>
+                          </div>
+                        </div>
+                        </fieldset>
+                    </form>
+                  </div>
+                  <div id="saved_groups" class="tab-pane fade">
+                    <div id="analysis_table" style="width:100%; height:auto" class="datatables html-widget html-widget-output"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="pseudotime" class="tab-pane fade"><p>magoo</p></div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="panel panel-warning">
+              <div class="panel-heading"></div>
+              <div class="panel-body">
+                <div id="scatter_svg_div" style="min-height:500px;"></div>
+              </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12" style='height:500px;'>
+        <div id="monocle_heatmap_div" style="width:100%; height:400px; " class="svgPanZoom html-widget html-widget-output">
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" async="" src="js/shiny_sce.js"></script>
+    <script type="text/javascript" async="" src="js/scatter.js"></script>
+    <script type="text/javascript" async="" src="js/utils.js"></script>
+    <script type="text/javascript" async="" src="js/correlation.js"></script>
+    <script type="text/javascript" async="" src="js/monocle.js"></script>
+    <script type="text/javascript" async="" src="js/tab_setup.js"></script>
+    <script type="text/javascript" async="" src="js/event_listeners.js"></script>
+  </body>
+</html>

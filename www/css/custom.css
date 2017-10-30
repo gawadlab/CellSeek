@@ -1,0 +1,69 @@
+/*body.no_scroll  {
+  #position: fixed;
+  overflow-y:scroll;
+  height: 100%;
+  #overflow:hidden;
+}
+*/
+
+button.panel_header_button  {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+path.not-active  {
+  stroke: #303030;
+  opacity: 0.5;
+}
+
+path.active  {
+  opacity: 1.00;
+}
+
+.loader {
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 300px;
+    height: 300px;
+    margin: auto;
+    vertical-align: middle;
+    animation: spin 5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/*Colors for the correlation scatter/network*/
+
+.links line {
+  stroke: #000;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+
+/*Lasso styling*/
+.lasso path {
+  stroke: rgb(80,80,80);
+  stroke-width:2px;
+}
+
+.lasso .drawn {
+  fill-opacity:.05 ;
+}
+
+.pan_up_down  {
+  cursor: ns-resize;
+}

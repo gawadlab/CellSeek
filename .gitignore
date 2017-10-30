@@ -1,0 +1,11 @@
+*
+!*.R
+!.gitignore
+!www/
+!www/*
+!www/**/
+!www/**/*
+!docs/
+!docs/index.md
+!docs/assets/
+!docs/assets/*.png
