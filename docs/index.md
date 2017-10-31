@@ -5,6 +5,11 @@ layout: default
 
 Single Cell Explorer is a web application that allows interactive exploration from single-cell RNA-seq (scRNA-seq) datasets. It was designed to allow researchers to explore the developing murine cerebellum at single-cell resolution to generate hypotheses and identify gene-expression trends associated with cerebellar cell types throughout the development of the cerebellum from developmental day 10 (e10) through post-natal day 10 (p10)
 
+Although the initial application was developed for exploring the cerebellum dataset, it has several features that make it suitable for the exploration of any RNASeq dataset:
+1. Separation of data from the location of analysis. Since CellSeek is a web application, the location of the dataset is not restricted to the location of the analysis. This will facilitate integration of the ever-increasing dataset sizes as the number of single cells examined in a single experiment pushes into 7 figures, while the popularity of scRNASeq increases simultaneously.
+2. Scalability. Two main features make CellSeek scalable. First, it uses a scatterhex grid display, which aggregated data to reduce noise and speed up image rendering. Second, only non-zero values are transmitted across the network. Since current scRNA-seq techonology generates sparse datasets, transferring only non-zero entries increases data transfer speed. 
+3. R as the server-side language. CellSeek uses Rstudio's Shiny on the server side. Since the server side code is written in R, it is easy to integrate functionality from exisiting R code and packages. In particular, future interactive analyses can use any of the packages from the [Bioconductor](https://www.bioconductor.org/) project, making the expansion of CellSeek analyses straightforward.
+
 
 ## Usage
 
