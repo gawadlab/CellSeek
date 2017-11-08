@@ -90,7 +90,7 @@ run_beam_and_generate_heatmap <- function(cds, branch_point = NULL, qval_thresho
     #print(temp_cds[rownames(temp_cds) %in% rownames(sig_genes_df),])
     if(hm_type == 'Branched') {
       tryCatch({
-        temp_heatmap_plot <- plot_genes_branched_heatmap(cds_subset = temp_cds[rownames(temp_cds) %in% sig_genes_df$ensembl,], show_rownames = TRUE, use_gene_short_name = TRUE, return_heatmap = TRUE, cluster_rows = FALSE)
+        temp_heatmap_plot <- plot_genes_branched_heatmap(cds_subset = temp_cds[rownames(temp_cds) %in% sig_genes_df$ensembl,], norm_method = 'log', show_rownames = TRUE, use_gene_short_name = TRUE, return_heatmap = TRUE, cluster_rows = FALSE)
         return(list(plot = temp_heatmap_plot, ensembl_to_gene_short_name = sig_genes_df[,c('ensembl', 'gene_short_name')]))
       },
       error = function(cond)  {return(NULL)})
