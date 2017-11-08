@@ -115,6 +115,9 @@ function update_monocle_div(selected_group_name)  {
         .transition(1000)
         .style("fill", "red")
         .each(function()  {console.log("FOO!");});
+      d3.select('#monocle_div')
+        .select("button.disabled")
+        .classed('disabled', false);
       sel.exit()
         .classed('selected', false)
         .transition(1000)

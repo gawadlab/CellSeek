@@ -262,9 +262,12 @@ function load_group_analysis_divs()  {
     .classed('btn', true)
     .classed('btn-primary', true)
     .classed('btn-xs', true)
+    .classed('disabled', true)
     .classed('panel_header_button', true)
     .on('click', function()  {
-      $("#branched_monocle_heatmap_modal").modal('show');
+      if(this.classList.contains('disabled') == false)  {
+        $("#branched_monocle_heatmap_modal").modal('show');
+      }
     });
   /*button
     .append('span')
