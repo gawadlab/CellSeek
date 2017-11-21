@@ -1,3 +1,7 @@
+###############
+# Version 0.1
+###############
+
 library(shiny)
 library(DT)
 library(RSQLite)
@@ -5,7 +9,8 @@ library(dplyr)
 library(monocle)
 
 #db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/neuro10x.db")
-db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/neuro10x.db")
+#db_conn <- dbConnect(drv = RSQLite::SQLite(), "/home/rob/drug_treated10x.db")
+db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/drug_treated10x.db")
 
 #print("Loading global.R")
 library(igraph)
