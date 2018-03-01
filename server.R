@@ -32,26 +32,37 @@ shinyServer(function(input, output, session) {
       send_subgroup_request_to_r(subgroup = data[1]);
 })'), fillContainer = TRUE, extensions = 'Select', options = list(paging = TRUE, searching=TRUE, info = FALSE, scrollCollapse=TRUE))
   
-  output$gene_table <- DT::renderDataTable({
-    #print("Setting up gene table")
+  print("Rendering datatable")
+  
+  observe({
     gene_selection_df <- collect(tbl(db_conn, 'gene_selection_table'))
-    return(gene_selection_df)
-  }, selection = list(mode = 'single', selected = 1), server = FALSE, callback=JS(
-    '$("#gene_table table").DataTable().on("select", function(e, dt, type, indexes) {
-       if(type === "row")  {
-         var data = dt.row(indexes).data();
-         console.log(data);
-         d3.select("#subgroup_table")
-           .selectAll("tr")
-           .classed("selected", false);
-         send_expression_request_to_r(gene_id = data[1]);
-       }
-     });
-     $("#gene_table").on("click.dt","tr", function() {
-         table.row(this).select();
-      });
-     adjust_dt_height_to_parent_height("#tab_and_tables_div", "#scatter_row", "#gene_table"); 
-'), fillContainer = TRUE, extensions = 'Select', options = list(drawCallback = JS('function(settings)  {if(typeof(foobar) !== "undefined") {this.api().row(0).select();} else  {console.log(settings);}}'), pagingType = 'simple', lengthChange = FALSE, paging = TRUE, searching=TRUE, info = FALSE, scrollCollapse=TRUE))
+    session$sendCustomMessage('receive_data_for_datatable', gene_selection_df)
+    
+  })
+  
+#   output$gene_table <- DT::renderDataTable({
+#     #print("Setting up gene table")
+#     gene_selection_df <- collect(tbl(db_conn, 'gene_selection_table'))
+#     return(gene_selection_df)
+#   }, selection = list(mode = 'single', selected = 1), server = TRUE, callback=JS(
+#     '$("#gene_table table").DataTable().on("select", function(e, dt, type, indexes) {
+#        if(type === "row")  {
+#          var data = dt.row(indexes).data();
+#          console.log(data);
+#          d3.select("#subgroup_table")
+#            .selectAll("tr")
+#            .classed("selected", false);
+#          send_expression_request_to_r(gene_id = data[1]);
+#        }
+#      });
+#      $("#gene_table").on("click.dt","tr", function() {
+#          table.row(this).select();
+#       });
+#      adjust_dt_height_to_parent_height("#tab_and_tables_div", "#scatter_row", "#gene_table"); 
+# '), fillContainer = TRUE, extensions = 'Select', options = list(drawCallback = JS('function(settings)  {if(typeof(foobar) !== "undefined") {this.api().row(0).select();} else  {console.log(settings);}}'), pagingType = 'simple', lengthChange = FALSE, paging = TRUE, searching=TRUE, info = FALSE, scrollCollapse=TRUE))
+#   
+  print("Completed rendering datatable")
+  
   
   observe({
     #print("Sending subgroup request")
@@ -71,20 +82,22 @@ shinyServer(function(input, output, session) {
   
   #Receive request for expression data and send back as JSON object
   observe({
-    #print("DANG MAN")
+    print("DANG MAN")
     request_list <- input$expression_request 
+    print(request_list)
     target_ensembl <- request_list[['gene_id']]
     if(length(request_list[['gene_id']]) == 1)  {
       if(!is.null(target_ensembl))  {
         query_expr_df <-tbl(db_conn, 'expr_table') %>% dplyr::filter(ensembl == target_ensembl) %>% dplyr::select(sample_name, log_expr)
-        #print("-Sending expression request back to client")
+        print(query_expr_df)
+        print("-Sending expression request back to client")
         session$sendCustomMessage('receive_expression_values_from_r', c(as.list(data.frame(collect(query_expr_df))), list(ensembl=target_ensembl)))
       }
     }
     else  {
       target_cells <- request_list[['sample_name']]
       ##print(target_cells)
-      ##print(target_ensembl)
+      print(target_ensembl)
       if(!(is.null(target_cells) || is.null(target_ensembl)))  {
         query_expr_df <- tbl(db_conn, 'expr_table') %>% dplyr::filter(ensembl == target_ensembl, sample_name %in% target_cells) %>% dplyr::select(sample_name, log_expr)
         foo_df <- data.frame(collect(query_expr_df))

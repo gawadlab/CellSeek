@@ -6,7 +6,8 @@
     <script src="external_js/shiny.min.js" type="text/javascript"></script>
     <script src="external_js/htmlwidgets.js" type="text/javascript"></script>
     <script src="external_js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="external_js/datatables.js" type="text/javascript"></script>
+		<script src="external_js/datatables.js" type="text/javascript"></script>-->
+		<script src="https://cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js" type="text/javascript"></script>-->
     <script src="external_js/hammer.min.js" type="text/javascript"></script>
     <!-- D3-related scripts -->
     <script src="external_js/d3-lasso.min.js" type="text/javascript"></script>
@@ -17,13 +18,15 @@
 
 
     <link rel="stylesheet" type="text/css" href="css/scroller.dataTables.min.css"/> 
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"/> 
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"/> 
     <link rel="stylesheet" type="text/css" href="shared/shiny.css"/> 
     <link rel="stylesheet" type="text/css" href="shared/datatables/css/dataTables.extra.css"/>
     <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
     <!--Bootstrap 3.3.7-->
     <link rel="stylesheet" href="css/bootstrap.css" media="screen">
     <link rel="stylesheet" href="css/custom.css" media="screen">
-    <link rel="stylesheet" href="css/dt.css" media="screen">
+		<!--<link rel="stylesheet" href="css/dt.css" media="screen">-->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css">
     	
     <meta charset="utf-8">
@@ -45,11 +48,20 @@
         </div>
         <div class="navbar-collapse collapse" id="navbar-main">
           <ul class="nav navbar-nav">
-            <li>
-              <a>Developing Murine Cerebellum</a>
+            <li class='nav-item dropdown'>
+              <a class='nav-link dropdown-toggle' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Developing Murine Cerebellum</a>
+
             </li>
           </ul>
         </div>
+				<div class="navbar-collapse collapse dropdown">
+					<button class="btn dropdown-toggle" type='button' data-toggle='dropdown'>Change Dataset<span class="caret"></span></button>
+					<ul class="dropdown-menu">
+						<li><a href="#">foo</a></li>
+						<li><a href="#">bar</a></li>
+						<li><a href="#">mojo</a></li>
+					</ul>
+				</div>
       </div>
     </div>
 
