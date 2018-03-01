@@ -1,34 +1,75 @@
 Shiny.addCustomMessageHandler("receive_data_for_datatable", function(json_object)  {
 	console.log("We've got data table info");
+	var num_elements = json_object['GENEID'].length;
+	var row_nums = get_incrementing_array(num_elements);
+	json_object['row_num'] = row_nums;
 	console.log(json_object);
 	d3.select("#gene_table")
 		.append('table')
 		.attr("id", 'gene_table_element');
-	table = $("#gene_table_element")
+	var table = $("#gene_table_element")
 			.DataTable({
 				'data': HTMLWidgets.dataframeToD3(json_object),
 				'select': {
 					style: 'single',
 					items: 'row'
 				},
-				'columns': [
-					{'data': "GENEID"},
-					{'data': "GENENAME"}
+				'columnDefs': [
+					{'targets': 0, 'data':'row_num'},
+					{'title': "GENEID", 'targets': 1, 'data':'GENEID'},
+					{'title': "GENENAME", 'targets': 2, 'data':'GENENAME'},
+				]
+			})
+			.on("select", function(e, dt, type, indexes) {
+				if(type === "row")  {
+					var data = dt.row(indexes).data();
+					//console.log(data);
+					//d3.select("#subgroup_table")
+					//.selectAll("tr")
+					//.classed("selected", false);
+					send_expression_request_to_r(gene_id = data['GENEID']);
+				}
+			});
+			//$("#gene_table_element").on("click.dt","tr", function() {
+			//	table.row(this).select();
+			//});
+			adjust_dt_height_to_parent_height("#tab_and_tables_div", "#scatter_row", "#gene_table_element"); 
+})
+
+Shiny.addCustomMessageHandler("receive_data_for_subgroup_table", function(json_object)  {
+	console.log("We've got subgroup table info");
+	console.log(json_object);
+	var num_elements = json_object['subgroup'].length;
+	var row_nums = get_incrementing_array(num_elements);
+	json_object['row_num'] = row_nums;
+	d3.select("#subgroup_table")
+		.append('table')
+		.attr("id", 'subgroup_table_element');
+	var table = $("#subgroup_table_element")
+			.DataTable({
+				'data': HTMLWidgets.dataframeToD3(json_object),
+				'select': {
+					style: 'single',
+					items: 'row'
+				},
+				'columnDefs': [
+					{'targets': 0, 'data':'row_num'},
+					{'title': 'subgroup', 'data': "subgroup", 'targets': 1},
 				]
 			})
 			.on("select", function(e, dt, type, indexes) {
 				if(type === "row")  {
 					var data = dt.row(indexes).data();
 					console.log(data);
-					d3.select("#subgroup_table")
-					.selectAll("tr")
-					.classed("selected", false);
-					send_expression_request_to_r(gene_id = data['GENEID']);
+					//d3.select("#subgroup_table")
+					//.selectAll("tr")
+					//.classed("selected", false);
+					send_subgroup_request_to_r(subgroup = data['subgroup']);
 				}
 			});
-			$("#gene_table_element").on("click.dt","tr", function() {
-				table.row(this).select();
-			});
+			//$("#subgroup_table_element").on("click.dt","tr", function() {
+			//	table.row(this).select();
+			//});
 			adjust_dt_height_to_parent_height("#tab_and_tables_div", "#scatter_row", "#gene_table_element"); 
 })
 

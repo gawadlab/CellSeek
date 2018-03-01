@@ -167,3 +167,11 @@ function get_display_name(original_name)  {
     return(original_name);
   }
 }
+
+function get_incrementing_array(length = 10)  {
+	var the_array = Array(length);
+	for(i=0; i<length; i++)  {
+		the_array[i] = i;
+	}
+	return(the_array);
+}

@@ -14,56 +14,31 @@ current_user <- 'globaluser'
 shinyServer(function(input, output, session) {
   temp_cds <- NULL
   current_user_table_name <- paste0(current_user, "_group_analysis_table")
-  #Display the gene selection table using the shiny widget
-  #print("argh")
   
-  output$subgroup_table <- DT::renderDataTable({
+  ########################################################
+  # Set up phenotype/subgroup table on startup only
+  ########################################################
+  observe({
     subgroup_fields <- dbListFields(db_conn, 'phenotype_table')
-    #print("Setting up subgroup table")
-    temp_df <- data.frame(subgroup = subgroup_fields[subgroup_fields != 'sample_name'], stringsAsFactors = FALSE)
-    #print(temp_df)
-    return(temp_df)
-  }, selection = list(mode = 'single'), server = FALSE, callback=JS(
-    '$("#subgroup_table").on("click.dt","tr", function() {
-      var data=table.row(this).data();
-       d3.select("#gene_table")
-         .selectAll("tr")
-         .classed("selected", false)
-      send_subgroup_request_to_r(subgroup = data[1]);
-})'), fillContainer = TRUE, extensions = 'Select', options = list(paging = TRUE, searching=TRUE, info = FALSE, scrollCollapse=TRUE))
-  
-  print("Rendering datatable")
-  
+    print("Setting up subgroup table")
+    subgroup_df <- data.frame(subgroup = subgroup_fields[subgroup_fields != 'sample_name'], stringsAsFactors = FALSE)
+    print(head(subgroup_df))
+    session$sendCustomMessage('receive_data_for_subgroup_table', subgroup_df)
+    
+  })
+   
+  ########################################################
+  # Set up gene selection table on startup only
+  ########################################################
   observe({
     gene_selection_df <- collect(tbl(db_conn, 'gene_selection_table'))
     session$sendCustomMessage('receive_data_for_datatable', gene_selection_df)
     
   })
   
-#   output$gene_table <- DT::renderDataTable({
-#     #print("Setting up gene table")
-#     gene_selection_df <- collect(tbl(db_conn, 'gene_selection_table'))
-#     return(gene_selection_df)
-#   }, selection = list(mode = 'single', selected = 1), server = TRUE, callback=JS(
-#     '$("#gene_table table").DataTable().on("select", function(e, dt, type, indexes) {
-#        if(type === "row")  {
-#          var data = dt.row(indexes).data();
-#          console.log(data);
-#          d3.select("#subgroup_table")
-#            .selectAll("tr")
-#            .classed("selected", false);
-#          send_expression_request_to_r(gene_id = data[1]);
-#        }
-#      });
-#      $("#gene_table").on("click.dt","tr", function() {
-#          table.row(this).select();
-#       });
-#      adjust_dt_height_to_parent_height("#tab_and_tables_div", "#scatter_row", "#gene_table"); 
-# '), fillContainer = TRUE, extensions = 'Select', options = list(drawCallback = JS('function(settings)  {if(typeof(foobar) !== "undefined") {this.api().row(0).select();} else  {console.log(settings);}}'), pagingType = 'simple', lengthChange = FALSE, paging = TRUE, searching=TRUE, info = FALSE, scrollCollapse=TRUE))
-#   
-  print("Completed rendering datatable")
-  
-  
+  ########################################################
+  # Send subgroup values for selected subgroup
+  ########################################################
   observe({
     #print("Sending subgroup request")
     request_list <- input$subgroup_request 
