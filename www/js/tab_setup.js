@@ -6,6 +6,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
       activate_functionality('group');
     }
     else  {
+			console.log($(this));
       console.log("No other viable options...");
     }
 });
