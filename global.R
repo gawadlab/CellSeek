@@ -10,7 +10,7 @@ library(monocle)
 
 #db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/neuro10x.db")
 #db_conn <- dbConnect(drv = RSQLite::SQLite(), "/home/rob/drug_treated10x.db")
-db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/drug_treated10x.db")
+db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/new_neuro10x.db")
 
 #print("Loading global.R")
 library(igraph)

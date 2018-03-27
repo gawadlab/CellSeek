@@ -27,6 +27,8 @@ Shiny.addCustomMessageHandler("receive_data_for_datatable", function(json_object
 					//d3.select("#subgroup_table")
 					//.selectAll("tr")
 					//.classed("selected", false);
+					$("#subgroup_table_element")
+								.DataTable().rows(".selected").deselect();
 					send_expression_request_to_r(gene_id = data['GENEID']);
 				}
 			});
@@ -64,6 +66,8 @@ Shiny.addCustomMessageHandler("receive_data_for_subgroup_table", function(json_o
 					//d3.select("#subgroup_table")
 					//.selectAll("tr")
 					//.classed("selected", false);
+					$("#gene_table_element")
+								.DataTable().rows(".selected").deselect();
 					send_subgroup_request_to_r(subgroup = data['subgroup']);
 				}
 			});
