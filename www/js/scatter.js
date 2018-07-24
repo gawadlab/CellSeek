@@ -630,7 +630,7 @@ function update_scatter_legend(height, width, x, y)  {
 }
 
 /******************************
-  * This function updates the cells that are active, the nuber of cells selected under the group tab, as well as the state array of the underlying global_data object.
+  * This function updates the cells that are active, the number of cells selected under the group tab, as well as the state array of the underlying global_data object.
   * It does NOT change the appearance. See recolor_image for that, which should probably be called after this function
   *
   * This function reads the individual cells' data array at position 4 (index 3), which contains the value used by the hex fill function.

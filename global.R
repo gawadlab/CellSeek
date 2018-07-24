@@ -10,7 +10,9 @@ library(monocle)
 
 #db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/neuro10x.db")
 #db_conn <- dbConnect(drv = RSQLite::SQLite(), "/home/rob/drug_treated10x.db")
-db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/new_neuro10x.db")
+#db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/revision_neuro10x.db")
+#db_conn <- dbConnect(drv = RSQLite::SQLite(), "/opt/app/data/new_neuro10x.db")
+db_conn <- dbConnect(drv = RSQLite::SQLite(), "db/binbing.db")
 
 #print("Loading global.R")
 library(igraph)
@@ -20,6 +22,10 @@ run_correlation_analysis <-function(sample_names, correlation_threshold, min_exp
   #print(mouse_tf_ensembl_ids)
   tf_mat <- reshape2::acast(collect(tbl(db_conn, 'expr_table') %>% dplyr::filter(ensembl %in% mouse_tf_ensembl_ids, sample_name %in% sample_names)), sample_name ~ ensembl, value.var='log_expr')
   tf_mat[is.na(tf_mat)] <- 0
+  target_sample_names <- rownames(tf_mat)
+  sampled_names_umi_count <- dplyr::left_join(data.frame(sample_name = rownames(tf_mat), stringsAsFactors = FALSE), dplyr::collect({tbl(db_conn, 'phenotype_table') %>% dplyr::select(sample_name, umi_count) %>% dplyr::filter(sample_name %in% target_sample_names)})) %>% dplyr::pull(umi_count)
+  tf_mat <- (2^(tf_mat) - 1)*({sampled_names_umi_count}/4762)
+ 
   tf_mat <- tf_mat[,apply(tf_mat,2,function(.col)  {mean(.col > 0) > min_expression_frequency})]
   tfs_cor <- cor(tf_mat)
   tfs_cor_mat <- as.matrix(tfs_cor)
@@ -34,37 +40,50 @@ run_correlation_analysis <-function(sample_names, correlation_threshold, min_exp
   return(list(edges = edges_df, nodes = nodes_df))
 }
 
-get_monocle_data <- function(sample_names, max_n_samples = 1000, min_expression_frequency = 0.1) {
+get_monocle_data <- function(sample_names, max_n_samples = 1000, min_expression_frequency = 0.05) {
   set.seed(12345)
   library(monocle)
-  if(length(sample_names) >= max_n_samples)  {
-    sample_names <- sample_names[sample(1:length(sample_names), max_n_samples, replace = FALSE)]
+  
+  sampled_names_dates_cluster_ids_umi_count_df  <- collect({tbl(db_conn, 'phenotype_table') %>% dplyr::select(sample_name, cluster_id, sample_date, umi_count) %>% dplyr::filter(sample_name %in% sample_names)}) 
+  sampled_sample_names <- dplyr::group_by(sampled_names_dates_cluster_ids_umi_count_df, cluster_id, sample_date) %>% dplyr::mutate(select = ifelse(runif(n=length(sample_name)) <  min(1.0, 50/length(sample_name)), TRUE, FALSE)) %>% dplyr::filter(select == TRUE) %>% dplyr::pull(sample_name)
+  if(length(sampled_sample_names) >= max_n_samples)  {
+    sampled_sample_names <- sampled_sample_names[sample(1:length(sampled_sample_names), max_n_samples, replace = FALSE)]
     #print("subsamplinbg data to 1000 cells")
   }
-  annotation_df<- collect(tbl(db_conn, 'annotation_table') %>% dplyr::filter(type == 'TF'))
-  tf_mat <- reshape2::acast(collect(tbl(db_conn, 'expr_table') %>% dplyr::filter(ensembl %in% annotation_df$ensembl, sample_name %in% sample_names)), sample_name ~ ensembl, value.var='log_expr')
+  
+  annotation_tf_ensembls <- collect(tbl(db_conn, 'annotation_table') %>% dplyr::filter(type == 'TF') %>% dplyr::select(ensembl)) %>% pull(ensembl)
+  tf_mat <- reshape2::acast(collect(tbl(db_conn, 'expr_table') %>% dplyr::filter(ensembl %in% annotation_tf_ensembls, sample_name %in% sampled_sample_names)), sample_name ~ ensembl, value.var='log_expr')
   tf_mat[is.na(tf_mat)] <- 0
   tf_mat <- tf_mat[,apply(tf_mat, 2, function(.col)  {mean(.col > 0) >= min_expression_frequency})]
-  target_ensembl_ids <- colnames(tf_mat)
-  gene_select_subset_df <- collect(tbl(db_conn, 'gene_selection_table') %>% dplyr::filter(GENEID %in% target_ensembl_ids))
-  fdata_df <- AnnotatedDataFrame({dplyr::left_join(data.frame(GENEID = colnames(tf_mat), stringsAsFactors = FALSE), gene_select_subset_df) %>% dplyr::mutate(GENENAME = ifelse(is.na(GENENAME), GENEID, GENENAME)) %>% dplyr::rename(ENSEMBL = GENEID, gene_short_name = GENENAME) %>% tibble::column_to_rownames('ENSEMBL')})
-  pdata_df <- AnnotatedDataFrame({data.frame(sample_name = rownames(tf_mat), stringsAsFactors = FALSE) %>% tibble::column_to_rownames('sample_name')})
+  #Convert expression back to raw_counts (this is done to prevent saving both log expr and raw expr for each cell, which would require several extra gigs of storage)
+  sampled_sample_umi_counts <- dplyr::left_join(data.frame(sample_name = rownames(tf_mat), stringsAsFactors = FALSE), {dplyr::select(sampled_names_dates_cluster_ids_umi_count_df, sample_name, umi_count)}) %>% pull(umi_count)
+  raw_tf_mat <- (2^(tf_mat) - 1)*({sampled_sample_umi_counts}/4762)
   
-  temp_cds <- newCellDataSet(as(t(tf_mat), 'sparseMatrix'), phenoData = pdata_df, featureData = fdata_df , expressionFamily = gaussianff())
+  target_ensembl_ids <- colnames(raw_tf_mat)
+  gene_select_subset_df <- collect(tbl(db_conn, 'gene_selection_table') %>% dplyr::filter(GENEID %in% target_ensembl_ids))
+  fdata_df <- AnnotatedDataFrame({dplyr::left_join(data.frame(GENEID = colnames(raw_tf_mat), stringsAsFactors = FALSE), gene_select_subset_df) %>% dplyr::mutate(GENENAME = ifelse(is.na(GENENAME), GENEID, GENENAME)) %>% dplyr::rename(ENSEMBL = GENEID, gene_short_name = GENENAME) %>% tibble::column_to_rownames('ENSEMBL')})
+  pdata_df <- AnnotatedDataFrame({data.frame(sample_name = rownames(raw_tf_mat), stringsAsFactors = FALSE) %>% tibble::column_to_rownames('sample_name')})
+  
+  browser()
+  
+  
+  set.seed(12345)
+  temp_cds <- newCellDataSet(as(t(raw_tf_mat), 'sparseMatrix'), phenoData = pdata_df, featureData = fdata_df , expressionFamily = negbinomial.size())
   
   #rm(giant_norpmt_gteq3500umi_lteq15000umi_noe14b_expressed_only_mat)
   
   temp_cds <- estimateSizeFactors(temp_cds)
   #f(is.null(tryCatch({
-  # temp_cds <- estimateDispersions(temp_cds)},
+  temp_cds <- estimateDispersions(temp_cds)
   #   error = function(cond)  {return(NULL)})))  {
   # return(NULL)
   #
   
+  print("SOB!!!!")
   set.seed(12345)
   
   #print("How am i skipping all this!?!?")
-  temp_cds <- reduceDimension(temp_cds, max_components=2, norm_method = 'none', pseudo_expr = 0)
+  temp_cds <- reduceDimension(temp_cds, max_components=2)
   temp_cds <<- orderCells(temp_cds)
   temp_cds <- orderCells(temp_cds)
   return(temp_cds)

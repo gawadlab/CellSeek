@@ -144,6 +144,9 @@ shinyServer(function(input, output, session) {
         }
         else  {
           branch_point_sample_names <- temp_cds@auxOrderingData[[temp_cds@dim_reduce_type]]$branch_points
+          print("ARGH!!!")
+          print(temp_cds@auxOrderingData)
+          print(temp_cds)
           branch_points_df <- data.frame(sample_name = branch_point_sample_names, x=temp_cds@reducedDimK[1,branch_point_sample_names], y=temp_cds@reducedDimK[2,branch_point_sample_names], stringsAsFactors = FALSE)
           branch_points_df$branch_point_id = 1:nrow(branch_points_df)
           monocle_data_df <- data.frame(x = temp_cds@reducedDimS[1,], y = temp_cds@reducedDimS[2,], pseudotime = temp_cds@phenoData@data$Pseudotime, state = temp_cds@phenoData@data$State, stringsAsFactors = FALSE) %>% tibble::rownames_to_column('sample_name')
@@ -154,7 +157,7 @@ shinyServer(function(input, output, session) {
         }
       }
       if(any(new_group_analysis[['analysis']] %in% "correlation"))  {
-        correlation_graph_list <- run_correlation_analysis(sample_names = new_group_analysis$sample_names, correlation_threshold = 0.25, min_expression_frequency = 0.1)
+        correlation_graph_list <- run_correlation_analysis(sample_names = new_group_analysis$sample_names, correlation_threshold = 0.20, min_expression_frequency = 0.1)
         correlation_graph_list$group_name <- new_group_analysis[['group_name']]
         correlation_graph_list[['edges']] <- correlation_graph_list[['edges']] %>% dplyr::mutate(group_name = new_group_analysis[['group_name']]) %>% dplyr::mutate(source = source - 1, target = target -1)
         correlation_graph_list[['nodes']] <-correlation_graph_list[['nodes']] %>% dplyr::mutate(group_name = new_group_analysis[['group_name']])

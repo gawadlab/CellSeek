@@ -10,3 +10,4 @@
 !docs/assets/
 !docs/assets/*.png
 .Rproj.user
+packrat/lib*/
